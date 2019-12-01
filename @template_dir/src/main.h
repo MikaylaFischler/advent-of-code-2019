@@ -1,5 +1,7 @@
+/** 
+ * @file console colors
+ */
 
-//! @brief console colors
 #define RESET	"\x1B[0m"
 #define BLACK	"\x1B[0;30m"
 #define RED		"\x1B[0;31m"
