@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 	// setup intcode computer
 	uint16_t pc = 0;
 	int32_t* memory 	= malloc(sizeof(int32_t) * MEM_SIZE);
-	int32_t* memory_bkp = malloc(sizeof(int32_t) * MEM_SIZE);
+	int32_t* memory_bkp	= malloc(sizeof(int32_t) * MEM_SIZE);
 
 	printf(YELLOW ">" B_WHITE " initializing memory...\n" RESET);
 	mem_start = clock();
