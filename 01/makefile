@@ -1,13 +1,18 @@
 all : sol
 
-sol : ./bin/main.o
-	gcc -Wall -o sol ./bin/main.o -lm
+optimized : optim-sol
 
-optimized : ./src/main.c ./src/main.h
-	gcc -O3 -Wall ./src/main.c -o sol
+sol : ./bin/main.o
+	gcc -Wall -o sol ./bin/main.o
+
+optim-sol : ./bin/main-optimized.o
+	gcc -O3 -Wall ./bin/main-optimized.o -o optim-sol
 
 ./bin/main.o : ./src/main.c ./src/main.h
-	gcc -Wall -c ./src/main.c -o ./bin/main.o
+	gcc -Wall -c ./src/main.c -o ./bin/main.o -L../lib/
+
+./bin/main-optimized.o : ./src/main.c ./src/main.h
+	gcc -O3 -Wall -c ./src/main.c -o ./bin/main-optimized.o -L../lib/
 
 clean :
-	rm sol ./bin/*.o
+	rm sol optim-sol ./bin/*.o
