@@ -46,6 +46,10 @@ int main(int argc, char** argv) {
 	mem_end = clock();
 	printf(B_GREEN ">" B_WHITE " memory initialized " WHITE "(" BLUE "%.3f ms" WHITE ")\n" RESET, (mem_end - mem_start) * 1000.0 / CLOCKS_PER_SEC);
 
+	// free up memory
+	fclose(fp);
+	if (line) { free(line); }
+
 	// load in values for part 1
 	intcode_load_init(icdata, 12, 2);
 
@@ -94,10 +98,6 @@ int main(int argc, char** argv) {
 	printf(B_WHITE "\ntotal time taken" WHITE "\t\t: " RED "%f" WHITE " seconds\n" RESET, (double) (time_end - time_start) / CLOCKS_PER_SEC);
 	printf(B_RED "[" MAGENTA "part 1" B_RED "] " B_WHITE "value after halt" WHITE "\t: " CYAN "%d\n" RESET, p1_res);
 	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "gravity assist" WHITE "\t\t: " CYAN "%d\n" RESET, p2_res);
-
-	// free up memory
-	fclose(fp);
-	if (line) { free(line); }
 
 	return 0;
 }

@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
 	uint16_t num_isects = 0;
 
 	// solution variables
-	mpoint_t best_point = { .point = { .x = 0, .y = 0}, .m_dist = -1 };
+	mpoint_t best_point = { .point = { .x = 0, .y = 0 }, .m_dist = -1 };
 	uint32_t min_len_sum = -1;
 
 	/* --- parse in vectors --- */
@@ -149,6 +149,10 @@ int main(int argc, char** argv) {
 
 	init_end = clock();
 	printf(B_GREEN ">" B_WHITE " data structure loaded " WHITE "(" BLUE "%.3f ms" WHITE ")\n" RESET, (init_end - time_start) * 1000.0 / CLOCKS_PER_SEC);
+
+	// free up memory
+	fclose(fp);
+	if (line) { free(line); }
 
 	/* --- find intersections --- */
 
@@ -284,10 +288,6 @@ int main(int argc, char** argv) {
 	printf(B_WHITE "\ntotal time taken" WHITE "\t\t: " RED "%f" WHITE " seconds\n" RESET, (double) (time_end - time_start) / CLOCKS_PER_SEC);
 	printf(B_RED "[" MAGENTA "part 1" B_RED "] " B_WHITE "closest intersection" WHITE "\t: " CYAN "%d\n" RESET, best_point.m_dist);
 	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "shortest path" WHITE "\t\t: " CYAN "%d\n" RESET, min_len_sum);
-
-	// free up memory
-	fclose(fp);
-	if (line) { free(line); }
 
 	return 0;
 }
