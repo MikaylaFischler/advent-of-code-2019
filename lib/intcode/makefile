@@ -1,10 +1,10 @@
-all : intcode.a
+all : libintcode.a
 
-intcode.a : ./bin/intcode.o
-	ar rcs intcode.a ./bin/intcode.o
+libintcode.a : ./bin/intcode.o
+	ar rcs libintcode.a ./bin/intcode.o
 
 bin/intcode.o : src/intcode.c intcode.h
 	gcc -O3 -Wall -c src/intcode.c -o bin/intcode.o
 
 clean :
-	rm intcode.a ./bin/*.o
+	rm libintcode.a ./bin/*.o

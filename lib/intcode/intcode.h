@@ -7,21 +7,42 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "src/color.h"
+
 #define IC_OP__ADD 1
 #define IC_OP__MUL 2
+#define IC_OP__INP 3
+#define IC_OP__OUT 4
+#define IC_OP__JNZ 5
+#define IC_OP__JEZ 6
+#define IC_OP__LES 7
+#define IC_OP__EQL 8
 #define IC_OP__HLT 99
+
+#define IC_PC__INC_ENA	0xFF
+#define IC_PC__INC_DIS	0x0
 
 typedef struct intcode_data {
 	uint16_t memsize;	// size of memory
 	int32_t* memory;	// memory contents
 	int32_t* membkp;	// memory backup
+	int32_t* inbuf;		// input buffer
+	uint16_t inbuflen;	// input buffer length
+	uint16_t inlen;		// length of buffer used
+	int32_t* outbuf;	// output buffer
+	uint16_t outbuflen;	// output buffer length
+	uint16_t outlen;	// length of buffer used
 } icd_t;
 
 /**
  * @brief create an intcode data instance
+ * @param in Input buffer
+ * @param out Output buffer
+ * @param in_len Input buffer length
+ * @param out_len Output buffer length
  * @return icd_t* new intcode data
  */
-icd_t*	intcode_init(void);
+icd_t*	intcode_init(int32_t* in, int32_t* out, uint16_t in_len, uint16_t out_len);
 
 /**
  * @brief load initial value pair
@@ -72,11 +93,5 @@ void	intcode_memory__backup(icd_t* icdata);
  * @return uint8_t 1 on success, 0 if no data to restore
  */
 uint8_t	intcode_memory__restore(icd_t* icdata);
-
-/**
- * @brief grow the intcode memory block (for use during loading)
- * @param icdata intcode data
- */
-static void __intcode_memory__grow(icd_t* icdata);
 
 #endif
