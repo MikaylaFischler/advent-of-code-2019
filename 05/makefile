@@ -15,4 +15,4 @@ optim-sol : ./bin/main-optimized.o
 	gcc -O3 -Wall -c ./src/main.c -o ./bin/main-optimized.o
 
 clean :
-	rm sol optim-sol ./bin/*.o
+	-@rm sol optim-sol ./bin/*.o 2>/dev/null || true
