@@ -22,27 +22,29 @@
 #define IC_PC__INC_ENA	0xFF
 #define IC_PC__INC_DIS	0x0
 
+typedef struct intcode_buffer {
+	int32_t** map;
+	int32_t* buffer;
+	uint16_t b_idx;
+	uint16_t max;
+} icb_t;
+
 typedef struct intcode_data {
 	uint16_t memsize;	// size of memory
 	int32_t* memory;	// memory contents
 	int32_t* membkp;	// memory backup
-	int32_t* inbuf;		// input buffer
-	uint16_t inbuflen;	// input buffer length
-	uint16_t inlen;		// length of buffer used
-	int32_t* outbuf;	// output buffer
-	uint16_t outbuflen;	// output buffer length
-	uint16_t outlen;	// length of buffer used
+	icb_t*   inbuf;		// input buffer
+	icb_t*   outbuf;	// output buffer
+	uint16_t pc;
 } icd_t;
 
 /**
  * @brief create an intcode data instance
- * @param in Input buffer
- * @param out Output buffer
  * @param in_len Input buffer length
  * @param out_len Output buffer length
  * @return icd_t* new intcode data
  */
-icd_t*	intcode_init(int32_t* in, int32_t* out, uint16_t in_len, uint16_t out_len);
+icd_t*	intcode_init(uint16_t in_len, uint16_t out_len);
 
 /**
  * @brief load initial value pair
@@ -51,6 +53,16 @@ icd_t*	intcode_init(int32_t* in, int32_t* out, uint16_t in_len, uint16_t out_len
  * @param b value 2
  */
 void	intcode_load_init(icd_t* icdata, int32_t a, int32_t b);
+
+void intcode_run_init(icd_t* icdata);
+
+icb_t* intcode_create_inbuf(icd_t* icdata, uint16_t in_len);
+icb_t* intcode_create_outbuf(icd_t* icdata, uint16_t out_len);
+int32_t __intcode__buffer_read(icb_t* buffer);
+void __intcode__buffer_write(icb_t* buffer, int32_t inval);
+void intcode_buffer_link(icb_t* buffer, uint16_t input_idx, int32_t* source);
+
+uint8_t intcode_compute_step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data);
 
 /**
  * @brief execute intcode memory
