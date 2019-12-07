@@ -17,7 +17,8 @@ typedef struct intcode_data {
 	int32_t* membkp;	// memory backup
 	icb_t*   inbuf;		// input buffer
 	icb_t*   outbuf;	// output buffer
-	uint16_t pc;
+	uint16_t pc;		// program counter for step commands
+	uint8_t  verbose;	// whether to print out in/out commands or not
 } icd_t;
 
 #endif

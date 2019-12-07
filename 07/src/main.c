@@ -33,11 +33,11 @@ int main(int argc, char** argv) {
 	int32_t p2 = 0;
 
 	// create intcode cores
-	icd_t* icdata_a = intcode_init(20, 1);
-	icd_t* icdata_b = intcode_init(20, 1);
-	icd_t* icdata_c = intcode_init(20, 1);
-	icd_t* icdata_d = intcode_init(20, 1);
-	icd_t* icdata_e = intcode_init(20, 1);
+	icd_t* icdata_a = intcode_init(20, 1, IC_QUIET);
+	icd_t* icdata_b = intcode_init(20, 1, IC_QUIET);
+	icd_t* icdata_c = intcode_init(20, 1, IC_QUIET);
+	icd_t* icdata_d = intcode_init(20, 1, IC_QUIET);
+	icd_t* icdata_e = intcode_init(20, 1, IC_QUIET);
 
 	// load memory
 	intcode_memory__load_file(fp, icdata_a);

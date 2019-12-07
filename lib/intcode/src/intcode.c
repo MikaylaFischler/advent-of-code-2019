@@ -2,13 +2,14 @@
 
 /* ----- Creation ----- */
 
-icd_t* intcode_init(uint16_t in_len, uint16_t out_len) {
+icd_t* intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose) {
 	icd_t* icd = (icd_t*) malloc(sizeof(icd_t));
 
 	icd->memsize = 1000;
 	icd->memory = malloc(sizeof(int32_t) * icd->memsize);
 	icd->membkp = NULL;
 	icd->pc = 0;
+	icd->verbose = verbose;
 	
 	__intcode__buffer_create(&icd->inbuf, in_len);
 	__intcode__buffer_create(&icd->outbuf, out_len);
@@ -92,8 +93,11 @@ uint8_t intcode_compute_step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data) {
 				printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "INP" RESET "(%d)] Input failed, out of range. Halted with code 2.\n", (intptr_t) (memory + icdata->pc), icdata->pc, inbuf->b_idx);
 				return EXIT__INPUT_EMPTY;
 			} else {
+				if (icdata->verbose) {
+					printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "INP" RESET "(%d)] " CYAN "<<" RESET " %d\n", (intptr_t) (memory + icdata->pc), icdata->pc, inbuf->b_idx, memory[block[1]]);
+				}
+
 				memory[block[1]] = __intcode__buffer_read(inbuf);
-				printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "INP" RESET "(%d)] " CYAN "<<" RESET " %d\n", (intptr_t) (memory + icdata->pc), icdata->pc, inbuf->b_idx - 1, memory[block[1]]);
 			}
 
 			if (inbuf->b_idx == 2) { inbuf->b_idx = 1; }
@@ -105,7 +109,10 @@ uint8_t intcode_compute_step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data) {
 				printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "OUT" RESET "(%d)] Output failed, out of range. Halted with code 3.\n", (intptr_t) (memory + icdata->pc), icdata->pc, outbuf->b_idx);
 				return EXIT__OUTPUT_FULL;
 			} else {
-				printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "OUT" RESET "(%d)] " CYAN ">>" RESET " %d\n", (intptr_t) (memory + icdata->pc), icdata->pc, outbuf->b_idx, params[0]);
+				if (icdata->verbose) {
+					printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "OUT" RESET "(%d)] " CYAN ">>" RESET " %d\n", (intptr_t) (memory + icdata->pc), icdata->pc, outbuf->b_idx, params[0]);
+				}
+
 				__intcode__buffer_write(outbuf, params[0]);
 			}
 

@@ -12,15 +12,18 @@
 #include "src/color.h"
 #include "src/util.h"
 
-#define IC_OP__ADD 1
-#define IC_OP__MUL 2
-#define IC_OP__INP 3
-#define IC_OP__OUT 4
-#define IC_OP__JNZ 5
-#define IC_OP__JEZ 6
-#define IC_OP__LES 7
-#define IC_OP__EQL 8
-#define IC_OP__HLT 99
+#define IC_VERBOSE	1
+#define IC_QUIET	0
+
+#define IC_OP__ADD	1
+#define IC_OP__MUL	2
+#define IC_OP__INP	3
+#define IC_OP__OUT	4
+#define IC_OP__JNZ	5
+#define IC_OP__JEZ	6
+#define IC_OP__LES	7
+#define IC_OP__EQL	8
+#define IC_OP__HLT	99
 
 #define IC_PC__INC_ENA	0xFF
 #define IC_PC__INC_DIS	0x0
@@ -29,9 +32,10 @@
  * @brief create an intcode data instance
  * @param in_len Input buffer length
  * @param out_len Output buffer length
+ * @param verbose whether to print out in/out commands or not (IC_VERBOSE or IC_QUIET)
  * @return icd_t* new intcode data
  */
-icd_t*	intcode_init(uint16_t in_len, uint16_t out_len);
+icd_t*	intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose);
 
 /**
  * @brief link buffer's input at input_idx to point to source (used to create 'pipes')
