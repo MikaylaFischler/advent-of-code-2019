@@ -67,13 +67,13 @@ void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval);
  * @param a value 1
  * @param b value 2
  */
-void	intcode_load_init(icd_t* icdata, int32_t a, int32_t b);
+void	intcode_compute__load2(icd_t* icdata, int32_t a, int32_t b);
 
 /**
- * @brief initialize the computation system (use if re-running intcode_compute or intcode_compute_step from beginning)
+ * @brief initialize the computation system (use if re-running intcode_compute or intcode_compute__step from beginning)
  * @param icdata intcode data
  */
-void	intcode_init_comp(icd_t* icdata);
+void	intcode_compute__init(icd_t* icdata);
 
 /**
  * @brief execute a single computational step (not to be used alternating with intcode_compute, they do not share program counters)
@@ -82,7 +82,7 @@ void	intcode_init_comp(icd_t* icdata);
  * @param has_data 
  * @return uint8_t Intcode exit code
  */
-uint8_t intcode_compute_step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data);
+uint8_t intcode_compute__step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data);
 
 /**
  * @brief execute intcode memory

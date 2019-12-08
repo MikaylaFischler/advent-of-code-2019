@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 	p2_start = clock();
 	
 	// compute part 2
-	intcode_init_comp(icdata);
+	intcode_compute__init(icdata);
 	intcode_compute(icdata);
 	p2 = intcode_buffer__get(icdata->outbuf, icdata->outbuf->b_idx - 1);
 

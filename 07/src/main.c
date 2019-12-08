@@ -54,11 +54,11 @@ int main(int argc, char** argv) {
 	intcode_memory__backup(icdata_e);
 
 	// create 'pipes'
-	intcode_buffer_link(icdata_b->inbuf, 1, icdata_a->outbuf->buffer);
-	intcode_buffer_link(icdata_c->inbuf, 1, icdata_b->outbuf->buffer);
-	intcode_buffer_link(icdata_d->inbuf, 1, icdata_c->outbuf->buffer);
-	intcode_buffer_link(icdata_e->inbuf, 1, icdata_d->outbuf->buffer);
-	intcode_buffer_link(icdata_a->inbuf, 1, icdata_e->outbuf->buffer);
+	intcode_buffer__link(icdata_b->inbuf, 1, icdata_a->outbuf->buffer);
+	intcode_buffer__link(icdata_c->inbuf, 1, icdata_b->outbuf->buffer);
+	intcode_buffer__link(icdata_d->inbuf, 1, icdata_c->outbuf->buffer);
+	intcode_buffer__link(icdata_e->inbuf, 1, icdata_d->outbuf->buffer);
+	intcode_buffer__link(icdata_a->inbuf, 1, icdata_e->outbuf->buffer);
 	
 	int32_t max = 0;
 
@@ -111,11 +111,11 @@ int main(int argc, char** argv) {
 		// icdata_d->inbuf->buffer[0] = 5;
 		// icdata_e->inbuf->buffer[0] = 6;
 
-		intcode_init_comp(icdata_a);
-		intcode_init_comp(icdata_b);
-		intcode_init_comp(icdata_c);
-		intcode_init_comp(icdata_d);
-		intcode_init_comp(icdata_e);
+		intcode_compute__init(icdata_a);
+		intcode_compute__init(icdata_b);
+		intcode_compute__init(icdata_c);
+		intcode_compute__init(icdata_d);
+		intcode_compute__init(icdata_e);
 
 		a_wrote = 0;
 		b_wrote = 0;
@@ -129,32 +129,32 @@ int main(int argc, char** argv) {
 		uint8_t run = EXIT__STEP_COMPLETE;
 		while (run == EXIT__STEP_COMPLETE) {
 			while (run && !a_wrote) {
-				run = intcode_compute_step(icdata_a, &a_wrote, &e_wrote);
+				run = intcode_compute__step(icdata_a, &a_wrote, &e_wrote);
 				if (run != EXIT__STEP_COMPLETE) { e_wrote = 0; }
 			}
 			run = EXIT__STEP_COMPLETE;
 			// a_wrote = 0;
 			while (run && !b_wrote) {
 				// printf("b\n");
-				run = intcode_compute_step(icdata_b, &b_wrote, &a_wrote);
+				run = intcode_compute__step(icdata_b, &b_wrote, &a_wrote);
 			}
 			run = EXIT__STEP_COMPLETE;
 			// b_wrote = 0;
 			while (run && !c_wrote) {
 				// printf("c\n");
-				run = intcode_compute_step(icdata_c, &c_wrote, &b_wrote);
+				run = intcode_compute__step(icdata_c, &c_wrote, &b_wrote);
 			}
 			run = EXIT__STEP_COMPLETE;
 			// c_wrote = 0;
 			while (run && !d_wrote) {
 				// printf("d\n");
-				run = intcode_compute_step(icdata_d, &d_wrote, &c_wrote);
+				run = intcode_compute__step(icdata_d, &d_wrote, &c_wrote);
 			}
 			run = EXIT__STEP_COMPLETE;
 			// d_wrote = 0;
 			while (run && !e_wrote) {
 				// printf("e %d %d\n", e_wrote, d_wrote);
-				run = intcode_compute_step(icdata_e, &e_wrote, &d_wrote);
+				run = intcode_compute__step(icdata_e, &e_wrote, &d_wrote);
 	// printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET "] Running step...!\n", (intptr_t) (icdata_e->memory + icdata_e->pc), icdata_e->pc);
 				// printf("e end %d, %d (%d)\n", e_wrote, d_wrote, run);
 			}

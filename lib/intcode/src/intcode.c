@@ -33,12 +33,12 @@ void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval) {
 
 /* ----- Computation ----- */
 
-void intcode_load_init(icd_t* icdata, int32_t a, int32_t b) {
+void intcode_compute__load2(icd_t* icdata, int32_t a, int32_t b) {
 	icdata->memory[1] = a;
 	icdata->memory[2] = b;
 }
 
-void intcode_init_comp(icd_t* icdata) {
+void intcode_compute__init(icd_t* icdata) {
 	// control data
 	icdata->pc = 0;
 
@@ -47,7 +47,7 @@ void intcode_init_comp(icd_t* icdata) {
 	icdata->outbuf->b_idx = 0;
 }
 
-uint8_t intcode_compute_step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data) {
+uint8_t intcode_compute__step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data) {
 	// control data
 	int32_t		mode_bits = 0;
 	int32_t		op = 0;
