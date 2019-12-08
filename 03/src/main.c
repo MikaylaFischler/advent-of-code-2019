@@ -247,7 +247,7 @@ int main(int argc, char** argv) {
 	}
 
 	p1_end = clock();
-	printf(B_GREEN ">" B_WHITE " all intersections found " WHITE "(" BLUE "%.3f us, %ld clock cycles" WHITE ")\n" RESET, (p1_end - p1_start) * 100000.0 / CLOCKS_PER_SEC, p1_end - p1_start);
+	printf(B_GREEN ">" B_WHITE " all intersections found " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (p1_end - p1_start) * 100000.0 / CLOCKS_PER_SEC, p1_end - p1_start);
 
 	/* --- compute part 2 --- */
 
@@ -279,7 +279,7 @@ int main(int argc, char** argv) {
 	}
 	
 	p2_end = clock();
-	printf(B_GREEN ">" B_WHITE " shortest path found " WHITE "(" BLUE "%.3f us, %ld clock cycles" WHITE ")\n" RESET, (p2_end - p2_start) * 100000.0 / CLOCKS_PER_SEC, p2_end - p2_start);
+	printf(B_GREEN ">" B_WHITE " shortest path found " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (p2_end - p2_start) * 100000.0 / CLOCKS_PER_SEC, p2_end - p2_start);
 
 	time_end = clock();
 
