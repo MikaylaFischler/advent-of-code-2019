@@ -43,7 +43,23 @@ icd_t*	intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose);
  * @param input_idx index to set
  * @param source new address
  */
-void	intcode_buffer_link(icb_t* buffer, uint16_t input_idx, int32_t* source);
+void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int32_t* source);
+
+/**
+ * @brief get a value from a buffer
+ * @param buffer buffer
+ * @param idx index to read
+ * @return value
+ */
+int32_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
+
+/**
+ * @brief set the value of an index in a buffer
+ * @param buffer buffer
+ * @param idx index to write to
+ * @param inval value
+ */
+void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval);
 
 /**
  * @brief load initial value pair
@@ -54,7 +70,7 @@ void	intcode_buffer_link(icb_t* buffer, uint16_t input_idx, int32_t* source);
 void	intcode_load_init(icd_t* icdata, int32_t a, int32_t b);
 
 /**
- * @brief initialize the computation system (use if re-running intcode_compute_step from beginning)
+ * @brief initialize the computation system (use if re-running intcode_compute or intcode_compute_step from beginning)
  * @param icdata intcode data
  */
 void	intcode_init_comp(icd_t* icdata);

@@ -19,8 +19,16 @@ icd_t* intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose) {
 
 /* ----- Buffer ----- */
 
-void intcode_buffer_link(icb_t* buffer, uint16_t input_idx, int32_t* source) {
+void intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int32_t* source) {
 	buffer->map[input_idx] = source;
+}
+
+int32_t intcode_buffer__get(icb_t* buffer, uint16_t idx) {
+	return *(buffer->map[idx]);
+}
+
+void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval) {
+	*(buffer->map[idx]) = inval;
 }
 
 /* ----- Computation ----- */
