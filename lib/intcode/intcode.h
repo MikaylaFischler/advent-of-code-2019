@@ -23,6 +23,7 @@
 #define IC_OP__JEZ	6
 #define IC_OP__LES	7
 #define IC_OP__EQL	8
+#define IC_OP__SRL	9
 #define IC_OP__HLT	99
 
 #define IC_PC__INC_ENA	0xFF
@@ -43,7 +44,7 @@ icd_t*	intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose);
  * @param input_idx index to set
  * @param source new address
  */
-void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int32_t* source);
+void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int64_t* source);
 
 /**
  * @brief get a value from a buffer
@@ -51,7 +52,7 @@ void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int32_t* source);
  * @param idx index to read
  * @return value
  */
-int32_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
+int64_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
 
 /**
  * @brief set the value of an index in a buffer
@@ -59,7 +60,7 @@ int32_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
  * @param idx index to write to
  * @param inval value
  */
-void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval);
+void intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval);
 
 /**
  * @brief load initial value pair
@@ -67,7 +68,7 @@ void intcode_buffer__set(icb_t* buffer, uint16_t idx, int32_t inval);
  * @param a value 1
  * @param b value 2
  */
-void	intcode_compute__load2(icd_t* icdata, int32_t a, int32_t b);
+void	intcode_compute__load2(icd_t* icdata, int64_t a, int64_t b);
 
 /**
  * @brief initialize the computation system (use if re-running intcode_compute or intcode_compute__step from beginning)
@@ -94,16 +95,16 @@ uint8_t	intcode_compute(icd_t* icdata);
 /**
  * @brief after intcode_compute, get the result
  * @param icdata intcode data
- * @return int32_t result
+ * @return int64_t result
  */
-int32_t intcode_result(icd_t* icdata);
+int64_t intcode_result(icd_t* icdata);
 
 /**
  * @brief load intcode memory from an array of length icdata->memsize
  * @param in array input
  * @param icdata intcode data
  */
-void	intcode_memory__load(int32_t* in, icd_t* icdata);
+void	intcode_memory__load(int64_t* in, icd_t* icdata);
 
 /**
  * @brief load intcode from an input file
@@ -125,5 +126,9 @@ void	intcode_memory__backup(icd_t* icdata);
  * @return uint8_t 1 on success, 0 if no data to restore
  */
 uint8_t	intcode_memory__restore(icd_t* icdata);
+
+
+int64_t intcode_memory__safe_read(icd_t* icdata, uint16_t addr);
+void intcode_memory__safe_write(icd_t* icdata, uint16_t addr, int64_t val);
 
 #endif
