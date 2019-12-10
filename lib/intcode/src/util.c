@@ -28,31 +28,49 @@ void __intcode__buffer_write(icb_t* buffer, int64_t inval) {
 }
 
 void __intcode_memory__grow(icd_t* icdata) {
-	icd_t* mem_new = malloc(sizeof(int64_t) * (icdata->memsize + 100));
-	memcpy(mem_new, icdata->memory, icdata->memsize * sizeof(int64_t));
+	uint16_t new_size = icdata->memsize + 200;
 
-	if (icdata->membkp != NULL) {
-		icd_t* memb_new = malloc(sizeof(int64_t) * (icdata->memsize + 100));
-		memcpy(memb_new, icdata->membkp, icdata->memsize * sizeof(int64_t));
-	}
+	// expand main memory
+	int64_t* mem_old = icdata->memory;
+	icdata->memory = malloc(sizeof(int64_t) * new_size);
+	memcpy(icdata->memory, mem_old, icdata->memsize * sizeof(int64_t));
+		
+	// clear the new memory; avoid using calloc if we are writing to most of it anyway
+	for (uint16_t i = icdata->memsize; i < new_size; i++) { icdata->memory[i] = 0x0; }
 
-	icdata->memsize += 100;
+	// free old memory and update size
+	free(mem_old);
+	icdata->memsize = new_size;
 }
 
 void __intcode_memory__grow_runtime(icd_t* icdata, uint16_t new_addr) {
 	if (new_addr <= icdata->memsize) { return; }
+	uint16_t new_size = new_addr + 200;
 
-	printf("growing during runtime... (needed addr %d)\n", new_addr);
+	// expand main memory
+	int64_t* mem_old = icdata->memory;
+	icdata->memory = malloc(sizeof(int64_t) * new_size);
+	memcpy(icdata->memory, mem_old, icdata->memsize * sizeof(int64_t));
+		
+	// clear the new memory; avoid using calloc if we are writing to most of it anyway
+	for (uint16_t i = icdata->memsize; i < new_size; i++) { icdata->memory[i] = 0x0; }
 
-	uint16_t new_size = new_addr - icdata->memsize + 200;
-
-	icd_t* mem_new = calloc(sizeof(int64_t), (new_addr - icdata->memsize + 200));
-	memcpy(mem_new, icdata->memory, icdata->memsize * sizeof(int64_t));
+	// free old memory
+	free(mem_old);
 
 	if (icdata->membkp != NULL) {
-		icd_t* memb_new = calloc(sizeof(int64_t), (new_addr - icdata->memsize + 200));
-		memcpy(memb_new, icdata->membkp, icdata->memsize * sizeof(int64_t));
+		// expand backup memory
+		int64_t* memb_old = icdata->membkp;
+		icdata->membkp = malloc(sizeof(int64_t) * new_size);
+		memcpy(icdata->membkp, memb_old, icdata->memsize * sizeof(int64_t));
+		
+		// clear the new memory; avoid using calloc if we are writing to most of it anyway
+		for (uint16_t i = icdata->memsize; i < new_size; i++) { icdata->memory[i] = 0x0; }
+
+		// free old memory
+		free(memb_old);
 	}
 
-	icdata->memsize = new_addr - icdata->memsize + 200;
+	// size
+	icdata->memsize = new_size;
 }

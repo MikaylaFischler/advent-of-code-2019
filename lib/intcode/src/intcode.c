@@ -5,7 +5,7 @@
 icd_t* intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose) {
 	icd_t* icd = (icd_t*) malloc(sizeof(icd_t));
 
-	icd->memsize = 5000;
+	icd->memsize = 1000;
 	icd->memory = calloc(sizeof(int64_t), icd->memsize);
 	icd->membkp = NULL;
 	icd->rel_pos = 0;
@@ -363,9 +363,6 @@ uint8_t intcode_memory__load_file(FILE* in, icd_t* icdata) {
 			// write value to memory
 			icdata->memory[i++] = atol(token);
 
-			// check for bad input
-			// if (icdata->memory[i - 1] == 0 && token[0] != '0') { return 0; }
-
 			token = strtok(NULL, ",");
 		}
 	}
@@ -396,13 +393,13 @@ void intcode_memory__backup(icd_t* icdata) {
 	}
 
 	// copy main to backup
-	memcpy(icdata->membkp, icdata->memory, icdata->memsize);
+	memcpy(icdata->membkp, icdata->memory, sizeof(int64_t) * icdata->memsize);
 }
 
 uint8_t intcode_memory__restore(icd_t* icdata) {
 	if (icdata->membkp != NULL) {
 		// copy backup to main
-		memcpy(icdata->memory, icdata->membkp, icdata->memsize);
+		memcpy(icdata->memory, icdata->membkp, sizeof(int64_t) * icdata->memsize);
 	} else { return 0; }
 
 	return 1;

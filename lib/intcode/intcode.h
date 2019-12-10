@@ -115,7 +115,8 @@ void	intcode_memory__load(int64_t* in, icd_t* icdata);
 uint8_t	intcode_memory__load_file(FILE* in, icd_t* icdata);
 
 /**
- * @brief backup intcode memory for restoration later
+ * @brief backup intcode memory for restoration later<br/>
+ * 	do not use this before memory__load's
  * @param icdata intcode data
  */
 void	intcode_memory__backup(icd_t* icdata);
