@@ -35,6 +35,10 @@ void intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval) {
 	*(buffer->attr_map[idx]) |= IC_BF__DRT;
 }
 
+void intcode_buffer__rewind(icb_t* buffer) {
+	buffer->b_idx = 0;
+}
+
 void intcode_buffer__set_mode_once(icb_t* buffer, uint16_t idx) {
 	*(buffer->attr_map[idx]) |= IC_BF__NCE;
 }

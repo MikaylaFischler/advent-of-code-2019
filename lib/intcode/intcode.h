@@ -49,6 +49,12 @@ int64_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
 void	intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval);
 
 /**
+ * @brief rewind a buffer to index 0
+ * @param buffer buffer
+ */
+void intcode_buffer__rewind(icb_t* buffer);
+
+/**
  * @brief set this buffer position to once mode; the default mode (this position will be read once then the index will be incremented)
  * @param buffer buffer
  * @param idx index to set mode for
