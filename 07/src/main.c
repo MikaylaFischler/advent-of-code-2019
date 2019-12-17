@@ -23,9 +23,10 @@ int main(int argc, char** argv) {
     if (fp == NULL) { return -1; }
 
 	// timing
-	clock_t time_start, time_end;
+	clock_t time_start, time_end, parse_end, p1_start, p1_end, p2_start, p2_end;
 
 	printf(YELLOW "starting...\n" RESET);
+	printf(YELLOW ">" B_WHITE " parsing intcode...\n" RESET);
 
 	time_start = clock();
 
@@ -33,11 +34,11 @@ int main(int argc, char** argv) {
 	int32_t p2 = 0;
 
 	// create intcode cores
-	icd_t* icdata_a = intcode_init(20, 1, IC_QUIET);
-	icd_t* icdata_b = intcode_init(20, 1, IC_QUIET);
-	icd_t* icdata_c = intcode_init(20, 1, IC_QUIET);
-	icd_t* icdata_d = intcode_init(20, 1, IC_QUIET);
-	icd_t* icdata_e = intcode_init(20, 1, IC_QUIET);
+	icd_t* icdata_a = intcode_init(2, 1, IC_QUIET);
+	icd_t* icdata_b = intcode_init(2, 1, IC_QUIET);
+	icd_t* icdata_c = intcode_init(2, 1, IC_QUIET);
+	icd_t* icdata_d = intcode_init(2, 1, IC_QUIET);
+	icd_t* icdata_e = intcode_init(2, 1, IC_QUIET);
 
 	// load memory
 	intcode_memory__load_file(fp, icdata_a);
@@ -53,115 +54,35 @@ int main(int argc, char** argv) {
 	intcode_memory__backup(icdata_d);
 	intcode_memory__backup(icdata_e);
 
-	// create 'pipes'
-	intcode_buffer__link(icdata_b->inbuf, 1, icdata_a->outbuf->buffer);
-	intcode_buffer__link(icdata_c->inbuf, 1, icdata_b->outbuf->buffer);
-	intcode_buffer__link(icdata_d->inbuf, 1, icdata_c->outbuf->buffer);
-	intcode_buffer__link(icdata_e->inbuf, 1, icdata_d->outbuf->buffer);
-	intcode_buffer__link(icdata_a->inbuf, 1, icdata_e->outbuf->buffer);
+	parse_end = clock();
+	printf(B_GREEN ">" B_WHITE " intcode parsed " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (parse_end - time_start) * 100000.0 / CLOCKS_PER_SEC, parse_end - time_start);
+	printf(YELLOW ">" B_WHITE " running part 1...\n" RESET);
+	p1_start = clock();
 	
-	int32_t max = 0;
+	// compute part 1
+	for (uint8_t i = 0; i < 120; i++) {
+		intcode_buffer__set(icdata_a->inbuf, 0, permu_0_4[i][0]);
+		intcode_buffer__set(icdata_a->inbuf, 1, 0);
+		intcode_compute(icdata_a);
 
-	// for (uint8_t i = 0; i < 120; i++) {
-	// 	inbuf_a[0] = permu_0_4[i][0];
-	// 	inbuf_a[1] = 0;
-	// 	intcode_compute(icdata_a);
-	// 	inbuf_b[0] = permu_0_4[i][1];
-	// 	inbuf_b[1] = outbuf_a;
-	// 	intcode_compute(icdata_b);
-	// 	inbuf_c[0] = permu_0_4[i][2];
-	// 	inbuf_c[1] = outbuf_b;
-	// 	intcode_compute(icdata_c);
-	// 	inbuf_d[0] = permu_0_4[i][3];
-	// 	inbuf_d[1] = outbuf_c;
-	// 	intcode_compute(icdata_d);
-	// 	inbuf_e[0] = permu_0_4[i][4];
-	// 	inbuf_e[1] = outbuf_d;
-	// 	intcode_compute(icdata_e);
+		intcode_buffer__set(icdata_b->inbuf, 0, permu_0_4[i][1]);
+		intcode_buffer__set(icdata_b->inbuf, 1, icdata_a->outbuf->buffer[0]);
+		intcode_compute(icdata_b);
 
-	// 	if (outbuf_e > max) {
-	// 		max = outbuf_e;
-	// 		max_idx = i;
-	// 	}
+		intcode_buffer__set(icdata_c->inbuf, 0, permu_0_4[i][2]);
+		intcode_buffer__set(icdata_c->inbuf, 1, icdata_b->outbuf->buffer[0]);
+		intcode_compute(icdata_c);
 
-	// 	intcode_memory__restore(icdata_a);
-	// 	intcode_memory__restore(icdata_b);
-	// 	intcode_memory__restore(icdata_c);
-	// 	intcode_memory__restore(icdata_d);
-	// 	intcode_memory__restore(icdata_e);
+		intcode_buffer__set(icdata_d->inbuf, 0, permu_0_4[i][3]);
+		intcode_buffer__set(icdata_d->inbuf, 1, icdata_c->outbuf->buffer[0]);
+		intcode_compute(icdata_d);
 
-	// }
+		intcode_buffer__set(icdata_e->inbuf, 0, permu_0_4[i][4]);
+		intcode_buffer__set(icdata_e->inbuf, 1, icdata_d->outbuf->buffer[0]);
+		intcode_compute(icdata_e);
 
-	uint8_t a_wrote = 0;
-	uint8_t b_wrote = 0;
-	uint8_t c_wrote = 0;
-	uint8_t d_wrote = 0;
-	uint8_t e_wrote = 0;
-
-
-	for (uint8_t i = 50; i < 120; i++) {
-		icdata_a->inbuf->buffer[0] = permu_5_9[i][0];
-		icdata_b->inbuf->buffer[0] = permu_5_9[i][1];
-		icdata_c->inbuf->buffer[0] = permu_5_9[i][2];
-		icdata_d->inbuf->buffer[0] = permu_5_9[i][3];
-		icdata_e->inbuf->buffer[0] = permu_5_9[i][4];
-		// icdata_a->inbuf->buffer[0] = 9;
-		// icdata_b->inbuf->buffer[0] = 7;
-		// icdata_c->inbuf->buffer[0] = 8;
-		// icdata_d->inbuf->buffer[0] = 5;
-		// icdata_e->inbuf->buffer[0] = 6;
-
-		intcode_compute__init(icdata_a);
-		intcode_compute__init(icdata_b);
-		intcode_compute__init(icdata_c);
-		intcode_compute__init(icdata_d);
-		intcode_compute__init(icdata_e);
-
-		a_wrote = 0;
-		b_wrote = 0;
-		c_wrote = 0;
-		d_wrote = 0;
-		e_wrote = 1;
-
-		icdata_a->inbuf->buffer[1] = 0;
-		icdata_e->outbuf->buffer[0] = 0;
-
-		uint8_t run = EXIT__STEP_COMPLETE;
-		while (run == EXIT__STEP_COMPLETE) {
-			while (run && !a_wrote) {
-				run = intcode_compute__step(icdata_a, &a_wrote, &e_wrote);
-				if (run != EXIT__STEP_COMPLETE) { e_wrote = 0; }
-			}
-			run = EXIT__STEP_COMPLETE;
-			// a_wrote = 0;
-			while (run && !b_wrote) {
-				// printf("b\n");
-				run = intcode_compute__step(icdata_b, &b_wrote, &a_wrote);
-			}
-			run = EXIT__STEP_COMPLETE;
-			// b_wrote = 0;
-			while (run && !c_wrote) {
-				// printf("c\n");
-				run = intcode_compute__step(icdata_c, &c_wrote, &b_wrote);
-			}
-			run = EXIT__STEP_COMPLETE;
-			// c_wrote = 0;
-			while (run && !d_wrote) {
-				// printf("d\n");
-				run = intcode_compute__step(icdata_d, &d_wrote, &c_wrote);
-			}
-			run = EXIT__STEP_COMPLETE;
-			// d_wrote = 0;
-			while (run && !e_wrote) {
-				// printf("e %d %d\n", e_wrote, d_wrote);
-				run = intcode_compute__step(icdata_e, &e_wrote, &d_wrote);
-	// printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET "] Running step...!\n", (intptr_t) (icdata_e->memory + icdata_e->pc), icdata_e->pc);
-				// printf("e end %d, %d (%d)\n", e_wrote, d_wrote, run);
-			}
-		}
-
-		if (icdata_e->outbuf->buffer[0] > max) {
-			max = icdata_e->outbuf->buffer[0];
+		if (icdata_e->outbuf->buffer[0] > p1) {
+			p1 = icdata_e->outbuf->buffer[0];
 		}
 
 		intcode_memory__restore(icdata_a);
@@ -170,17 +91,86 @@ int main(int argc, char** argv) {
 		intcode_memory__restore(icdata_d);
 		intcode_memory__restore(icdata_e);
 
+		intcode_compute__init(icdata_a);
+		intcode_compute__init(icdata_b);
+		intcode_compute__init(icdata_c);
+		intcode_compute__init(icdata_d);
+		intcode_compute__init(icdata_e);
 	}
 
+	// setup for part 2
 
+	p1_end = clock();
+	printf(B_GREEN ">" B_WHITE " part 1 completed " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (p1_end - p1_start) * 100000.0 / CLOCKS_PER_SEC, p1_end - p1_start);
+	printf(YELLOW ">" B_WHITE " running part 2...\n" RESET);
+	p2_start = clock();
+
+	// create 'pipes'
+	intcode_buffer__link(icdata_a->inbuf, 1, icdata_e->outbuf->buffer, icdata_e->outbuf->attr);
+	intcode_buffer__link(icdata_b->inbuf, 1, icdata_a->outbuf->buffer, icdata_a->outbuf->attr);
+	intcode_buffer__link(icdata_c->inbuf, 1, icdata_b->outbuf->buffer, icdata_b->outbuf->attr);
+	intcode_buffer__link(icdata_d->inbuf, 1, icdata_c->outbuf->buffer, icdata_c->outbuf->attr);
+	intcode_buffer__link(icdata_e->inbuf, 1, icdata_d->outbuf->buffer, icdata_d->outbuf->attr);
+
+	// set 'pipes' as streams
+	intcode_buffer__set_mode_stream(icdata_a->inbuf, 1);
+	intcode_buffer__set_mode_stream(icdata_b->inbuf, 1);
+	intcode_buffer__set_mode_stream(icdata_c->inbuf, 1);
+	intcode_buffer__set_mode_stream(icdata_d->inbuf, 1);
+	intcode_buffer__set_mode_stream(icdata_e->inbuf, 1);
+
+	// compute part 2
+	for (uint8_t i = 0; i < 120; i++) {
+		icdata_a->inbuf->buffer[0] = permu_5_9[i][0];
+		icdata_b->inbuf->buffer[0] = permu_5_9[i][1];
+		icdata_c->inbuf->buffer[0] = permu_5_9[i][2];
+		icdata_d->inbuf->buffer[0] = permu_5_9[i][3];
+		icdata_e->inbuf->buffer[0] = permu_5_9[i][4];
+
+		intcode_compute__init(icdata_a);
+		intcode_compute__init(icdata_b);
+		intcode_compute__init(icdata_c);
+		intcode_compute__init(icdata_d);
+		intcode_compute__init(icdata_e);
+
+		intcode_buffer__set(icdata_a->inbuf, 1, 0);
+
+		uint8_t run = EXIT__MISSING_INPUT;
+		while (run == EXIT__MISSING_INPUT) {
+			intcode_compute(icdata_a);
+			intcode_compute(icdata_b);
+			intcode_compute(icdata_c);
+			intcode_compute(icdata_d);
+			run = intcode_compute(icdata_e);
+		}
+
+		if (icdata_e->outbuf->buffer[0] > p2) {
+			p2 = icdata_e->outbuf->buffer[0];
+		}
+
+		intcode_memory__restore(icdata_a);
+		intcode_memory__restore(icdata_b);
+		intcode_memory__restore(icdata_c);
+		intcode_memory__restore(icdata_d);
+		intcode_memory__restore(icdata_e);
+
+		intcode_compute__init(icdata_a);
+		intcode_compute__init(icdata_b);
+		intcode_compute__init(icdata_c);
+		intcode_compute__init(icdata_d);
+		intcode_compute__init(icdata_e);
+	}
+
+	p2_end = clock();
+	printf(B_GREEN ">" B_WHITE " part 2 completed " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (p2_end - p2_start) * 100000.0 / CLOCKS_PER_SEC, p2_end - p2_start);
 
 	time_end = clock();
 
     printf(GREEN "done.\n" RESET);
 
 	printf(B_WHITE "\ntotal time taken" WHITE "\t: " RED "%f" WHITE " seconds\n" RESET, (double) (time_end - time_start) / CLOCKS_PER_SEC);
-	printf(B_RED "[" MAGENTA "part 1" B_RED "] " B_WHITE "DESC" WHITE "\t\t: " CYAN "%d\n" RESET, max);
-	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "DESC" WHITE "\t\t: " CYAN "VAL\n" RESET);
+	printf(B_RED "[" MAGENTA "part 1" B_RED "] " B_WHITE "max val" WHITE "\t: " CYAN "%d\n" RESET, p1);
+	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "feedback" WHITE "\t: " CYAN "%d\n" RESET, p2);
 
 	// free up memory
 	fclose(fp);

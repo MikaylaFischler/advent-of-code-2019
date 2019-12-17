@@ -4,9 +4,10 @@
 #include <inttypes.h>
 
 typedef struct intcode_buffer {
-	int64_t** map;		// memory map; use this not buffer for access (allows pointing to arbitray memory for piping)
-	uint8_t* dirty;		// whether position n has been written to. NOT AN ARRAY: each bit corresponds to an index
+	int64_t** map;		// memory map; use this not buffer for access (allows pointing to arbitrary memory for piping)
+	uint8_t** attr_map;	// attribute map; use this not attr for access (allows pointing to arbitrary memory for piping)
 	int64_t* buffer;	// memory storage for this buffer
+	uint8_t* attr;		// buffer attributes (array of attributes per memory block)
 	uint16_t b_idx;		// next element to access
 	uint16_t max;		// size of buffer
 } icb_t;
@@ -15,7 +16,7 @@ typedef struct intcode_data {
 	uint16_t memsize;	// size of memory
 	int64_t* memory;	// memory contents
 	int64_t* membkp;	// memory backup
-	int16_t  rel_pos;
+	int16_t  rel_pos;	// current relative position base
 	icb_t*   inbuf;		// input buffer
 	icb_t*   outbuf;	// output buffer
 	uint16_t pc;		// program counter for step commands

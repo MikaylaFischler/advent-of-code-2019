@@ -6,25 +6,35 @@ void __intcode__buffer_create(icb_t** buffer, uint16_t len) {
 	if (len) {
 		*buffer = malloc(sizeof(icb_t) * len);
 		(*buffer)->map = malloc(sizeof(int64_t*) * len);
-		(*buffer)->dirty = calloc(sizeof(uint8_t), len / 8 + (len % 8 > 0));
+		(*buffer)->attr_map = malloc(sizeof(uint8_t*) * len);
 		(*buffer)->buffer = malloc(sizeof(int64_t) * len);
+		(*buffer)->attr = malloc(sizeof(uint8_t) * len);
 		(*buffer)->b_idx = 0;
 		(*buffer)->max = len;
 
 		for (uint16_t i = 0; i < len; i++) {
 			(*buffer)->map[i] = (*buffer)->buffer + i;
+			(*buffer)->attr[i] = IC_BF__NCE | IC_BF__DRT;
+			(*buffer)->attr_map[i] = (*buffer)->attr + i;
 		}
 	}
 }
 
 int64_t __intcode__buffer_read(icb_t* buffer) {
-	buffer->dirty[buffer->b_idx / 8] ^= (uint8_t) 0x1 << buffer->b_idx % 8;
-	return *(buffer->map[buffer->b_idx++]);
+	int64_t val = *(buffer->map[buffer->b_idx]);
+	*(buffer->attr_map[buffer->b_idx]) &= ~IC_BF__DRT;
+	buffer->b_idx += (*(buffer->attr_map[buffer->b_idx]) & IC_BF__NCE) >> 1;
+	return val;
 }
 
 void __intcode__buffer_write(icb_t* buffer, int64_t inval) {
-	(*buffer->dirty) |= 0x1 << buffer->b_idx;
-	*(buffer->map[buffer->b_idx++]) = inval;
+	*(buffer->attr_map[buffer->b_idx]) |= IC_BF__DRT;
+	*(buffer->map[buffer->b_idx]) = inval;
+	buffer->b_idx += (*(buffer->attr_map[buffer->b_idx]) & IC_BF__NCE) >> 1;
+}
+
+uint8_t __intcode__buffer_dirty(icb_t* buffer) {
+	return *(buffer->attr_map[buffer->b_idx]) & IC_BF__DRT;
 }
 
 void __intcode_memory__grow(icd_t* icdata) {

@@ -7,27 +7,11 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "ic_defs.h"
 #include "ic_types.h"
 #include "exit_codes.h"
 #include "src/color.h"
 #include "src/util.h"
-
-#define IC_VERBOSE	1
-#define IC_QUIET	0
-
-#define IC_OP__ADD	1
-#define IC_OP__MUL	2
-#define IC_OP__INP	3
-#define IC_OP__OUT	4
-#define IC_OP__JNZ	5
-#define IC_OP__JEZ	6
-#define IC_OP__LES	7
-#define IC_OP__EQL	8
-#define IC_OP__SRL	9
-#define IC_OP__HLT	99
-
-#define IC_PC__INC_ENA	0xFF
-#define IC_PC__INC_DIS	0x0
 
 /**
  * @brief create an intcode data instance
@@ -40,11 +24,13 @@ icd_t*	intcode_init(uint16_t in_len, uint16_t out_len, uint8_t verbose);
 
 /**
  * @brief link buffer's input at input_idx to point to source (used to create 'pipes')
+ * @note this also sets this buffer as clean (read)
  * @param buffer buffer to modify
  * @param input_idx index to set
  * @param source new address
+ * @param attr_source new attribute address
  */
-void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int64_t* source);
+void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int64_t* source, uint8_t* attr_source);
 
 /**
  * @brief get a value from a buffer
@@ -60,7 +46,21 @@ int64_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
  * @param idx index to write to
  * @param inval value
  */
-void intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval);
+void	intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval);
+
+/**
+ * @brief set this buffer position to once mode; the default mode (this position will be read once then the index will be incremented)
+ * @param buffer buffer
+ * @param idx index to set mode for
+ */
+void	intcode_buffer__set_mode_once(icb_t* buffer, uint16_t idx);
+
+/**
+ * @brief set this buffer position to stream mode (once reached, all further reads will be done from here)
+ * @param buffer buffer
+ * @param idx index to set mode for
+ */
+void	intcode_buffer__set_mode_stream(icb_t* buffer, uint16_t idx);
 
 /**
  * @brief load initial value pair
@@ -71,19 +71,10 @@ void intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval);
 void	intcode_compute__load2(icd_t* icdata, int64_t a, int64_t b);
 
 /**
- * @brief initialize the computation system (use if re-running intcode_compute or intcode_compute__step from beginning)
+ * @brief initialize the computation system (use if re-running intcode_compute from beginning)
  * @param icdata intcode data
  */
 void	intcode_compute__init(icd_t* icdata);
-
-/**
- * @brief execute a single computational step (not to be used alternating with intcode_compute, they do not share program counters)
- * @param icdata intcode data
- * @param wrote 
- * @param has_data 
- * @return uint8_t Intcode exit code
- */
-uint8_t intcode_compute__step(icd_t* icdata, uint8_t* wrote, uint8_t* has_data);
 
 /**
  * @brief execute intcode memory

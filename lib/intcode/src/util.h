@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "../ic_defs.h"
 #include "../ic_types.h"
 
 /**
@@ -27,6 +28,13 @@ int64_t __intcode__buffer_read(icb_t* buffer);
  * @param inval value
  */
 void __intcode__buffer_write(icb_t* buffer, int64_t inval);
+
+/**
+ * @brief check if the next value to be read is dirty/unread or not
+ * @param buffer buffer
+ * @return uint8_t 0 if unchanged, non-zero if changed
+ */
+uint8_t __intcode__buffer_dirty(icb_t* buffer);
 
 /**
  * @brief grow the intcode memory block (for use during loading)
