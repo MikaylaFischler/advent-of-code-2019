@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     if (fp == NULL) { return -1; }
 
 	// timing
-	clock_t time_start, time_end, parse_end, p1_start, p1_end, p2_start, p2_end;;
+	clock_t time_start, time_end, parse_end, p1_start, p1_end, p2_start, p2_end;
 
 	printf(YELLOW "starting...\n" RESET);
 	printf(YELLOW ">" B_WHITE " parsing intcode and allocating memory...\n" RESET);
