@@ -37,6 +37,10 @@ uint8_t __intcode__buffer_dirty(icb_t* buffer) {
 	return *(buffer->attr_map[buffer->b_idx]) & IC_BF__DRT;
 }
 
+uint8_t __intcode__buffer_write_halt(icb_t* buffer) {
+	return *(buffer->attr_map[buffer->b_idx]) & IC_BF__HLT;
+}
+
 void __intcode_memory__grow(icd_t* icdata) {
 	uint16_t new_size = icdata->memsize + 200;
 

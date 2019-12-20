@@ -37,11 +37,23 @@ void __intcode__buffer_write(icb_t* buffer, int64_t inval);
 uint8_t __intcode__buffer_dirty(icb_t* buffer);
 
 /**
+ * @brief check if we should halt after writing
+ * @param buffer buffer
+ * @return uint8_t 1 if should halt, 0 if not
+ */
+uint8_t __intcode__buffer_write_halt(icb_t* buffer);
+
+/**
  * @brief grow the intcode memory block (for use during loading)
  * @param icdata intcode data
  */
 void __intcode_memory__grow(icd_t* icdata);
 
+/**
+ * @brief expand intcode memory while running
+ * @param icdata intcode data
+ * @param new_addr out-of-bounds address to expand past
+ */
 void __intcode_memory__grow_runtime(icd_t* icdata, uint16_t new_addr);
 
 #endif

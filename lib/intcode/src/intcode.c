@@ -30,6 +30,11 @@ int64_t intcode_buffer__get(icb_t* buffer, uint16_t idx) {
 	return *(buffer->map[idx]);
 }
 
+int64_t intcode_buffer__read_stream(icb_t* buffer, uint16_t idx) {
+	*(buffer->attr_map[idx]) &= ~IC_BF__DRT;
+	return *(buffer->map[idx]);
+}
+
 void intcode_buffer__set(icb_t* buffer, uint16_t idx, int64_t inval) {
 	*(buffer->map[idx]) = inval;
 	*(buffer->attr_map[idx]) |= IC_BF__DRT;
@@ -45,6 +50,11 @@ void intcode_buffer__set_mode_once(icb_t* buffer, uint16_t idx) {
 
 void intcode_buffer__set_mode_stream(icb_t* buffer, uint16_t idx) {
 	*(buffer->attr_map[idx]) &= ~IC_BF__NCE;
+}
+
+void intcode_buffer__set_halt_on_stream_write(icb_t* buffer, uint16_t idx) {
+	*(buffer->attr_map[idx]) &= ~IC_BF__DRT;
+	*(buffer->attr_map[idx]) |= IC_BF__HLT;
 }
 
 /* ----- Computation ----- */
@@ -196,7 +206,6 @@ uint8_t intcode_compute(icd_t* icdata) {
 							intcode_memory__safe_write(icdata, output, __intcode__buffer_read(inbuf));
 						}
 					} else {
-						// printf("[" YELLOW "0x%lx" RESET ":" MAGENTA "%04d" RESET ":" RED "INP" RESET "(%d)] Input failed, no new data. Halted with code 4.\n", (intptr_t) (memory + pc), pc, inbuf->b_idx);
 						return EXIT__MISSING_INPUT;
 					}
 				}
@@ -253,6 +262,9 @@ uint8_t intcode_compute(icd_t* icdata) {
 		pc += pc_inc & pc_inc_mask;
 		pc_inc_mask = IC_PC__INC_ENA;
 		icdata->pc = pc;
+
+		// check if should halt for output
+		if (op == IC_OP__OUT && __intcode__buffer_write_halt(outbuf)) { return EXIT__OUTPUT_READY; }
 	} while (run && pc < icdata->memsize + pc_inc);
 
 	return run ? EXIT__ABNORMAL : EXIT__NORMAL;

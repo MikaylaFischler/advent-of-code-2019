@@ -17,6 +17,7 @@
 
 #define IC_BF__DRT	0x1		// buffer attr dirty bit
 #define IC_BF__NCE	0x2		// buffer attr mode ((O)NCE = check this position then inc, ~(O)NCE = repeatedly check this position)
+#define IC_BF__HLT	0x8		// buffer attr halt on output stream write, used to pass output to userspace functions
 
 #define IC_PC__INC_ENA	0xFF
 #define IC_PC__INC_DIS	0x0

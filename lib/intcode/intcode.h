@@ -41,7 +41,15 @@ void	intcode_buffer__link(icb_t* buffer, uint16_t input_idx, int64_t* source, ui
 int64_t intcode_buffer__get(icb_t* buffer, uint16_t idx);
 
 /**
- * @brief set the value of an index in a buffer
+ * @brief read from an output stream (sets dirty bit to false)
+ * @param buffer buffer
+ * @param idx index to read from
+ * @return int64_t value at index
+ */
+int64_t intcode_buffer__read_stream(icb_t* buffer, uint16_t idx);
+
+/**
+ * @brief set the value of an index in a buffer (sets dirty bit to true)
  * @param buffer buffer
  * @param idx index to write to
  * @param inval value
@@ -67,6 +75,13 @@ void	intcode_buffer__set_mode_once(icb_t* buffer, uint16_t idx);
  * @param idx index to set mode for
  */
 void	intcode_buffer__set_mode_stream(icb_t* buffer, uint16_t idx);
+
+/**
+ * @brief set the system to halt on a fresh output write to allow user to read
+ * @param buffer buffer
+ * @param idx index to halt at
+ */
+void	intcode_buffer__set_halt_on_stream_write(icb_t* buffer, uint16_t idx);
 
 /**
  * @brief load initial value pair
