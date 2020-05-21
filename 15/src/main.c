@@ -201,6 +201,42 @@ void populate_costs(uint8_t** map, uint16_t** cost_map, uint16_t x, uint16_t y, 
 	}
 }
 
+void diffuse_oxygen(uint8_t** map, uint16_t** oxy_map, uint16_t x, uint16_t y, uint16_t t) {
+	t++;
+
+	// north
+	if (map[y - 1][x] == C_VISITED) {
+		if (t < oxy_map[y - 1][x]) {
+			oxy_map[y - 1][x] = t;
+			diffuse_oxygen(map, oxy_map, x, y - 1, t);
+		}
+	}
+
+	// south
+	if (map[y + 1][x] == C_VISITED) {
+		if (t < oxy_map[y + 1][x]) {
+			oxy_map[y + 1][x] = t;
+			diffuse_oxygen(map, oxy_map, x, y + 1, t);
+		}
+	}
+
+	// west
+	if (map[y][x - 1] == C_VISITED) {
+		if (t < oxy_map[y][x - 1]) {
+			oxy_map[y][x - 1] = t;
+			diffuse_oxygen(map, oxy_map, x - 1, y, t);
+		}
+	}
+	
+	// east
+	if (map[y][x + 1] == C_VISITED) {
+		if (t < oxy_map[y][x + 1]) {
+			oxy_map[y][x + 1] = t;
+			diffuse_oxygen(map, oxy_map, x + 1, y, t);
+		}
+	}
+}
+
 int main(int argc, char** argv) {
     printf(WHITE "x------------------------------------------------x\n" RESET);
     printf(WHITE "|           " BLUE "2019 " B_BLUE "advent of code" BLUE " day 15" WHITE "           |\n" RESET);
@@ -214,7 +250,7 @@ int main(int argc, char** argv) {
     if (fp == NULL) { return -1; }
 
 	// timing
-	clock_t time_start, time_end, parse_end, p1_start, p1_end, p2_start, p2_end;
+	clock_t time_start, time_end, parse_end, p1_start, p1_end, p2_start;
 
 	printf(YELLOW "starting...\n" RESET);
 	printf(YELLOW ">" B_WHITE " parsing intcode and allocating memory...\n" RESET);
@@ -224,12 +260,17 @@ int main(int argc, char** argv) {
 	// allocate maps
 	uint8_t** map = malloc(sizeof(uint8_t*) * MAP_H);
 	uint16_t** cost_map = malloc(sizeof(uint16_t*) * MAP_H);
+	uint16_t** oxy_map = malloc(sizeof(uint16_t*) * MAP_H);
 
 	for (uint16_t i = 0; i < MAP_H; i++) { 
 		map[i] = calloc(sizeof(uint8_t), MAP_W);
 		cost_map[i] = malloc(sizeof(uint16_t) * MAP_W);
+		oxy_map[i] = malloc(sizeof(uint16_t) * MAP_W);
 
-		for (uint16_t j = 0; j < MAP_W; j++) { cost_map[i][j] = UINT16_MAX; }
+		for (uint16_t j = 0; j < MAP_W; j++) { 
+			cost_map[i][j] = UINT16_MAX;
+			oxy_map[i][j] = UINT16_MAX;
+		}
 	}
 
 	// create intcode program
@@ -247,8 +288,7 @@ int main(int argc, char** argv) {
 
 	parse_end = clock();
 	printf(B_GREEN ">" B_WHITE " intcode parsed " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (parse_end - time_start) * 100000.0 / CLOCKS_PER_SEC, parse_end - time_start);
-	printf(YELLOW ">" B_WHITE " determining minimum steps to O2 system...\n" RESET);
-
+	printf(YELLOW ">" B_WHITE " determining minimum steps to oxygen system...\n" RESET);
 	p1_start = clock();
 
 	uint16_t start_x = MAP_W/2;
@@ -267,25 +307,46 @@ int main(int argc, char** argv) {
 	// print_cost_map(map, cost_map);
 
 	// find cost to O2 system
+	uint16_t o2_x = 0;
+	uint16_t o2_y = 0;
 	uint16_t min_steps = 0;
-	for (uint8_t y = 0; y < MAP_H; y++) {
+
+	for (uint8_t y = 0; y < MAP_H && min_steps == 0; y++) {
 		for (uint8_t x = 0; x < MAP_W; x++) {
 			if (map[y][x] == C_OXYGEN) {
+				o2_x = x;
+				o2_y = y;
 				min_steps = cost_map[y][x];
+				break;
 			}
 		}
 	}
 
 	p1_end = clock();
 	printf(B_GREEN ">" B_WHITE " found minimum steps to oxygen system " WHITE "(" BLUE "%.3f ms" WHITE ")\n" RESET, (p1_end - p1_start) * 100.0 / CLOCKS_PER_SEC);
+	printf(YELLOW ">" B_WHITE " modeling oxygen diffusion...\n" RESET);
+	p2_start = clock();
+
+	diffuse_oxygen(map, oxy_map, o2_x, o2_y, 0);
+	// print_cost_map(map, oxy_map);
+
+	uint16_t max_time = 0;
+	for (uint8_t y = 0; y < MAP_H; y++) {
+		for (uint8_t x = 0; x < MAP_W; x++) {
+			if (oxy_map[y][x] != UINT16_MAX && oxy_map[y][x] > max_time) {
+				max_time = oxy_map[y][x];
+			}
+		}
+	}
 
 	time_end = clock();
+	printf(B_GREEN ">" B_WHITE " modeling complete " WHITE "(" BLUE "%.3f us, %ld clock ticks" WHITE ")\n" RESET, (time_end - p2_start) * 100000.0 / CLOCKS_PER_SEC, time_end - p2_start);
 
     printf(GREEN "done.\n" RESET);
 
 	printf(B_WHITE "\ntotal time taken" WHITE "\t: " RED "%f" WHITE " seconds\n" RESET, (double) (time_end - time_start) / CLOCKS_PER_SEC);
 	printf(B_RED "[" MAGENTA "part 1" B_RED "] " B_WHITE "steps to O2" WHITE "\t: " CYAN "%d\n" RESET, min_steps);
-	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "DESC" WHITE "\t\t: " CYAN "VAL\n" RESET);
+	printf(B_RED "[" MAGENTA "part 2" B_RED "] " B_WHITE "diffusal time" WHITE "\t: " CYAN "%d\n" RESET, max_time);
 
 	return 0;
 }
